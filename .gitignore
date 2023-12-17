@@ -1,0 +1,12 @@
+Drivers
+MDK-ARM/STM32F746G-DISCO-BLE
+#Debug
+#DebugConfig
+#Release
+#Listings
+#Objects
+#*.0000
+#*@*
+#*.base@*
+*.uvguix.*
+#Auto_FcArm_Cmd*
