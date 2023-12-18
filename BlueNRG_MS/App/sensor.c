@@ -71,7 +71,7 @@ void Set_DeviceConnectable(void)
   uint8_t ret;
   const char local_name[] = {AD_TYPE_COMPLETE_LOCAL_NAME,SENSOR_DEMO_NAME};
 
-  uint8_t manuf_data[26] = {
+  uint8_t manuf_data[29] = {
     2,0x0A,0x00, /* 0 dBm */  // Transmission Power
     8,0x09,SENSOR_DEMO_NAME,  // Complete Name
     13,0xFF,0x01, /* SKD version */

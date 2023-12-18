@@ -103,7 +103,7 @@ void MX_BlueNRG_MS_Init(void)
   /* USER CODE END BlueNRG_MS_Init_PreTreatment */
 
   /* Initialize the peripherals and the BLE Stack */
-  const char *name = "BlueNRG";
+  const char *name = "BlueNRG Hans";
   uint16_t service_handle, dev_name_char_handle, appearance_char_handle;
 
   uint8_t  bdaddr_len_out;
@@ -154,7 +154,7 @@ void MX_BlueNRG_MS_Init(void)
 
   /* GAP Init */
   if (bnrg_expansion_board == IDB05A1) {
-    ret = aci_gap_init_IDB05A1(GAP_PERIPHERAL_ROLE_IDB05A1, 0, 0x07, &service_handle, &dev_name_char_handle, &appearance_char_handle);
+    ret = aci_gap_init_IDB05A1(GAP_PERIPHERAL_ROLE_IDB05A1, 0, strlen(name), &service_handle, &dev_name_char_handle, &appearance_char_handle);
   }
   else {
     ret = aci_gap_init_IDB04A1(GAP_PERIPHERAL_ROLE_IDB04A1, &service_handle, &dev_name_char_handle, &appearance_char_handle);
