@@ -29,6 +29,8 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f7xx_hal.h"
 
+#include "hci_tl_interface.h"
+#include "stm32f746g_disco.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -187,9 +189,7 @@ void Error_Handler(void);
 #define ARDUINO_PWM_CS_D5_GPIO_Port GPIOI
 #define RCC_OSC32_OUT_Pin GPIO_PIN_15
 #define RCC_OSC32_OUT_GPIO_Port GPIOC
-#define PB_BUTTON_Pin GPIO_PIN_11
-#define PB_BUTTON_GPIO_Port GPIOI
-#define PB_BUTTON_EXTI_IRQn EXTI15_10_IRQn
+#define BSP_BUTTON_EXTI_IRQn EXTI15_10_IRQn
 #define LCD_G6_Pin GPIO_PIN_1
 #define LCD_G6_GPIO_Port GPIOK
 #define LCD_G7_Pin GPIO_PIN_2
@@ -257,8 +257,6 @@ void Error_Handler(void);
 #define FMC_D15_GPIO_Port GPIOD
 #define CSN_Pin GPIO_PIN_10
 #define CSN_GPIO_Port GPIOF
-#define DUMMY_LED_Pin GPIO_PIN_9
-#define DUMMY_LED_GPIO_Port GPIOF
 #define ARDUINO_A3_Pin GPIO_PIN_8
 #define ARDUINO_A3_GPIO_Port GPIOF
 #define FMC_SDCKE0_Pin GPIO_PIN_3
