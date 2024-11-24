@@ -97,8 +97,8 @@ void Error_Handler(void);
 #define RMII_TXD0_GPIO_Port GPIOG
 #define ARDUINO_SDA_D14_Pin GPIO_PIN_9
 #define ARDUINO_SDA_D14_GPIO_Port GPIOB
-#define QSPI_NCS_Pin GPIO_PIN_6
-#define QSPI_NCS_GPIO_Port GPIOB
+#define EXT_SHIELD_LED8_Pin GPIO_PIN_6
+#define EXT_SHIELD_LED8_GPIO_Port GPIOB
 #define FMC_SDNCAS_Pin GPIO_PIN_15
 #define FMC_SDNCAS_GPIO_Port GPIOG
 #define RMII_TX_EN_Pin GPIO_PIN_11
@@ -194,8 +194,6 @@ void Error_Handler(void);
 #define LCD_G6_GPIO_Port GPIOK
 #define LCD_G7_Pin GPIO_PIN_2
 #define LCD_G7_GPIO_Port GPIOK
-#define ARDUINO_PWM_D10_Pin GPIO_PIN_8
-#define ARDUINO_PWM_D10_GPIO_Port GPIOA
 #define OSC_25M_Pin GPIO_PIN_0
 #define OSC_25M_GPIO_Port GPIOH
 #define FMC_A2_Pin GPIO_PIN_2
@@ -257,6 +255,8 @@ void Error_Handler(void);
 #define FMC_D15_GPIO_Port GPIOD
 #define CSN_Pin GPIO_PIN_10
 #define CSN_GPIO_Port GPIOF
+#define DUMMY_LED_Pin GPIO_PIN_9
+#define DUMMY_LED_GPIO_Port GPIOF
 #define ARDUINO_A3_Pin GPIO_PIN_8
 #define ARDUINO_A3_GPIO_Port GPIOF
 #define FMC_SDCKE0_Pin GPIO_PIN_3
