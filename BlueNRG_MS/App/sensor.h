@@ -6,7 +6,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2023 STMicroelectronics.
+  * Copyright (c) 2024 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -23,7 +23,7 @@
 
 #define IDB04A1 0
 #define IDB05A1 1
-#define SENSOR_DEMO_NAME   'B','l','u','e','N','R','G','_','H','N'
+#define SENSOR_DEMO_NAME   'B','l','u','e','N','R','G'
 #define BDADDR_SIZE        6
 
 void Set_DeviceConnectable(void);
