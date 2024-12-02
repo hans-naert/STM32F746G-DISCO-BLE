@@ -23,6 +23,7 @@
 #include "gatt_db.h"
 #include "bluenrg_conf.h"
 #include "bluenrg_gatt_aci.h"
+#include "main.h"
 
 /** @brief Macro that stores Value into a buffer in Little Endian Format (2 bytes)*/
 #define HOST_TO_LE_16(buf, val)    ( ((buf)[0] =  (uint8_t) (val)    ) , \
@@ -50,8 +51,13 @@ do {\
 #define COPY_SW_SENS_W2ST_SERVICE_UUID(uuid_struct)    COPY_UUID_128(uuid_struct,0x00,0x00,0x00,0x00,0x00,0x02,0x11,0xe1,0x9a,0xb4,0x00,0x02,0xa5,0xd5,0xc5,0x1b)
 #define COPY_QUATERNIONS_W2ST_CHAR_UUID(uuid_struct)   COPY_UUID_128(uuid_struct,0x00,0x00,0x01,0x00,0x00,0x01,0x11,0xe1,0xac,0x36,0x00,0x02,0xa5,0xd5,0xc5,0x1b)
 
+/* LED Characteristics Service */
+#define COPY_LED_SERVICE_UUID(uuid_struct)    COPY_UUID_128(uuid_struct,0x00,0x00,0x00,0x00,0x00,0x04,0x11,0xe1,0x9a,0xb4,0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+#define COPY_LED_CHAR_UUID(uuid_struct)       COPY_UUID_128(uuid_struct,0x00,0x00,0x01,0x00,0x00,0x03,0x11,0xe1,0xac,0x36,0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+
 uint16_t HWServW2STHandle, EnvironmentalCharHandle, AccGyroMagCharHandle;
 uint16_t SWServW2STHandle, QuaternionsCharHandle;
+uint16_t LedServHandle, LedCharHandle;
 
 /* UUIDS */
 Service_UUID_t service_uuid;
@@ -149,6 +155,47 @@ tBleStatus Add_SWServW2ST_Service(void)
 fail:
   return BLE_STATUS_ERROR;
 }
+
+
+/**
+ * @brief  Add the SW Feature service using a vendor specific profile
+ * @param  None
+ * @retval tBleStatus Status
+ */
+tBleStatus Add_Led_Service(void)
+{
+  tBleStatus ret;
+  int32_t NumberOfRecords=1;
+  uint8_t uuid[16];
+
+  COPY_LED_SERVICE_UUID(uuid);
+  BLUENRG_memcpy(&service_uuid.Service_UUID_128, uuid, 16);
+  ret = aci_gatt_add_serv(UUID_TYPE_128, service_uuid.Service_UUID_128, PRIMARY_SERVICE,
+                          1+3*NumberOfRecords, &LedServHandle);
+
+  if (ret != BLE_STATUS_SUCCESS) {
+    goto fail;
+  }
+
+  COPY_LED_CHAR_UUID(uuid);
+  BLUENRG_memcpy(&char_uuid.Char_UUID_128, uuid, 16);
+  ret =  aci_gatt_add_char(LedServHandle, UUID_TYPE_128, char_uuid.Char_UUID_128,
+                           2+6*SEND_N_QUATERNIONS,
+                           CHAR_PROP_WRITE_WITHOUT_RESP,
+                           ATTR_PERMISSION_NONE,
+                           GATT_NOTIFY_ATTRIBUTE_WRITE,
+                           16, 0, &LedCharHandle);
+
+  if (ret != BLE_STATUS_SUCCESS) {
+    goto fail;
+  }
+
+  return BLE_STATUS_SUCCESS;
+
+fail:
+  return BLE_STATUS_ERROR;
+}
+
 
 /**
  * @brief  Update acceleration characteristic value
@@ -284,4 +331,20 @@ tBleStatus BlueMS_Environmental_Update(int32_t press, int16_t temp)
   }
 
   return BLE_STATUS_SUCCESS;
+}
+
+
+/**
+ * @brief  This function is called when an attribute gets modified
+ * @param  handle : handle of the attribute
+ * @param  data_length : size of the modified attribute data
+ * @param  att_data : pointer to the modified attribute data
+ * @retval None
+ */
+void Attribute_Modified_CB(uint16_t handle, uint8_t data_length, uint8_t *att_data)
+{
+	PRINTF("Attibuted modified CB\n");
+  if(handle == LedCharHandle + 1){
+    HAL_GPIO_WritePin(EXT_LED7_GPIO_Port,EXT_LED7_Pin, att_data[0]);
+	}
 }
