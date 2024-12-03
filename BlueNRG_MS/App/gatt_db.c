@@ -180,7 +180,7 @@ tBleStatus Add_Led_Service(void)
   COPY_LED_CHAR_UUID(uuid);
   BLUENRG_memcpy(&char_uuid.Char_UUID_128, uuid, 16);
   ret =  aci_gatt_add_char(LedServHandle, UUID_TYPE_128, char_uuid.Char_UUID_128,
-                           2+6*SEND_N_QUATERNIONS,
+                           1,
                            CHAR_PROP_WRITE_WITHOUT_RESP,
                            ATTR_PERMISSION_NONE,
                            GATT_NOTIFY_ATTRIBUTE_WRITE,
