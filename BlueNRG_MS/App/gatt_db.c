@@ -55,9 +55,15 @@ do {\
 #define COPY_LED_SERVICE_UUID(uuid_struct)    COPY_UUID_128(uuid_struct,0x00,0x00,0x00,0x00,0x00,0x04,0x11,0xe1,0x9a,0xb4,0x00,0x02,0xa5,0xd5,0xc5,0x1b)
 #define COPY_LED_CHAR_UUID(uuid_struct)       COPY_UUID_128(uuid_struct,0x00,0x00,0x01,0x00,0x00,0x03,0x11,0xe1,0xac,0x36,0x00,0x02,0xa5,0xd5,0xc5,0x1b)
 
+/* Button Characteristics Service */
+#define COPY_BUTTON_SERVICE_UUID(uuid_struct)    COPY_UUID_128(uuid_struct,0x00,0x00,0x00,0x00,0x00,0x06,0x11,0xe1,0x9a,0xb4,0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+#define COPY_BUTTON_CHAR_UUID(uuid_struct)       COPY_UUID_128(uuid_struct,0x00,0x00,0x01,0x00,0x00,0x05,0x11,0xe1,0xac,0x36,0x00,0x02,0xa5,0xd5,0xc5,0x1b)
+
 uint16_t HWServW2STHandle, EnvironmentalCharHandle, AccGyroMagCharHandle;
 uint16_t SWServW2STHandle, QuaternionsCharHandle;
 uint16_t LedServHandle, LedCharHandle;
+uint16_t ButtonServHandle, ButtonCharHandle;
+
 
 /* UUIDS */
 Service_UUID_t service_uuid;
@@ -198,6 +204,46 @@ fail:
 
 
 /**
+ * @brief  Add the SW Feature service using a vendor specific profile
+ * @param  None
+ * @retval tBleStatus Status
+ */
+tBleStatus Add_Button_Service(void)
+{
+  tBleStatus ret;
+  int32_t NumberOfRecords=1;
+  uint8_t uuid[16];
+
+  COPY_BUTTON_SERVICE_UUID(uuid);
+  BLUENRG_memcpy(&service_uuid.Service_UUID_128, uuid, 16);
+  ret = aci_gatt_add_serv(UUID_TYPE_128, service_uuid.Service_UUID_128, PRIMARY_SERVICE,
+                          1+3*NumberOfRecords, &ButtonServHandle);
+
+  if (ret != BLE_STATUS_SUCCESS) {
+    goto fail;
+  }
+
+  COPY_BUTTON_CHAR_UUID(uuid);
+  BLUENRG_memcpy(&char_uuid.Char_UUID_128, uuid, 16);
+  ret =  aci_gatt_add_char(ButtonServHandle, UUID_TYPE_128, char_uuid.Char_UUID_128,
+                           1,
+                           CHAR_PROP_NOTIFY|CHAR_PROP_READ,
+                           ATTR_PERMISSION_NONE,
+                           GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP,
+                           16, 0, &ButtonCharHandle);
+
+  if (ret != BLE_STATUS_SUCCESS) {
+    goto fail;
+  }
+
+  return BLE_STATUS_SUCCESS;
+
+fail:
+  return BLE_STATUS_ERROR;
+}
+
+
+/**
  * @brief  Update acceleration characteristic value
  * @param  AxesRaw_t structure containing acceleration value in mg.
  * @retval tBleStatus Status
@@ -290,7 +336,8 @@ tBleStatus Quat_Update(AxesRaw_t *data)
 void Read_Request_CB(uint16_t handle)
 {
   tBleStatus ret;
-
+	static uint8_t button=0;
+	
   if(handle == AccGyroMagCharHandle + 1)
   {
     Acc_Update(&x_axes, &g_axes, &m_axes);
@@ -302,6 +349,11 @@ void Read_Request_CB(uint16_t handle)
     data_p = 1000.0 + ((uint64_t)rand()*100)/RAND_MAX; //P sensor emulation
     BlueMS_Environmental_Update((int32_t)(data_p *100), (int16_t)(data_t * 10));
   }
+	else if (handle == ButtonCharHandle + 1)		
+	{
+		button++;
+		Button_Update(button);				
+	}
 
   if(connection_handle !=0)
   {
@@ -329,9 +381,32 @@ tBleStatus BlueMS_Environmental_Update(int32_t press, int16_t temp)
     PRINTF("Error while updating TEMP characteristic: 0x%04X\n",ret) ;
     return BLE_STATUS_ERROR ;
   }
+	
 
   return BLE_STATUS_SUCCESS;
 }
+
+
+tBleStatus Button_Update(int8_t button)
+{
+  tBleStatus ret;
+  uint8_t buff[1];
+	
+	buff[0]= button;
+  
+  ret = aci_gatt_update_char_value(ButtonServHandle, ButtonCharHandle,
+                                   0, 1, buff);
+
+  if (ret != BLE_STATUS_SUCCESS){
+    PRINTF("Error while updating BUTTON characteristic: 0x%04X\n",ret) ;
+    return BLE_STATUS_ERROR ;
+  }
+	else
+		 PRINTF("Updated BUTTON characteristic") ;
+
+  return BLE_STATUS_SUCCESS;
+}
+
 
 
 /**
