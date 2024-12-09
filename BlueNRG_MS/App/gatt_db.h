@@ -80,7 +80,7 @@ void Attribute_Modified_CB(uint16_t handle, uint8_t data_length, uint8_t *att_da
 tBleStatus BlueMS_Environmental_Update(int32_t press, int16_t temp);
 tBleStatus Acc_Update(AxesRaw_t *x_axes, AxesRaw_t *g_axes, AxesRaw_t *m_axes);
 tBleStatus Quat_Update(AxesRaw_t *q_axes);
-
+tBleStatus Add_Button_Service(void);
 extern uint8_t Services_Max_Attribute_Records[];
 
 #endif /* GATT_DB_H */
