@@ -1,13 +1,13 @@
 /**
   ******************************************************************************
-  * @file    hci_tl_interface.c
+  * @file    hci_tl_interface_template.c
   * @author  SRA Application Team
-  * @brief   This file provides the implementation for all functions prototypes
-  *          for the STM32 BlueNRG HCI Transport Layer interface
+  * @brief   Function implementation for the STM32 BlueNRG HCI Transport Layer
+  *          interface
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2024 STMicroelectronics.
+  * Copyright (c) 2016 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -16,91 +16,27 @@
   *
   ******************************************************************************
   */
-
-/* Includes ------------------------------------------------------------------*/
-#include "RTE_Components.h"
-
 #include "hci_tl.h"
+#include "main.h"
+
+extern SPI_HandleTypeDef hspi2;
 
 /* Defines -------------------------------------------------------------------*/
 
 #define HEADER_SIZE       5U
 #define MAX_BUFFER_SIZE   255U
 #define TIMEOUT_DURATION  15U
+#define HCI_TL_SPI_CS_PORT CSN_GPIO_Port
+#define HCI_TL_SPI_CS_PIN  CSN_Pin
+#define HCI_TL_SPI_EXTI_PORT IRQ_GPIO_Port
+#define HCI_TL_SPI_EXTI_PIN  IRQ_Pin
+#define HCI_TL_RST_PORT    RST_GPIO_Port
+#define HCI_TL_RST_PIN     RST_Pin
+#define BSP_SPI2_SendRecv(tx_data,rx_data,size) HAL_SPI_TransmitReceive(&hspi2, tx_data, rx_data, size, HAL_MAX_DELAY)
+#define BSP_GetTick (int32_t (*)(void))HAL_GetTick
 
 /* Private variables ---------------------------------------------------------*/
 EXTI_HandleTypeDef hexti0;
-
-/******************** IO Operation and BUS services ***************************/
-
-/**
- * @brief  Initializes the peripherals communication with the BlueNRG
- *         Expansion Board (via SPI, I2C, USART, ...)
- *
- * @param  void* Pointer to configuration struct
- * @retval int32_t Status
- */
-int32_t HCI_TL_SPI_Init(void* pConf)
-{
-  GPIO_InitTypeDef GPIO_InitStruct;
-
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-
-  /* Configure EXTI Line */
-  GPIO_InitStruct.Pin = HCI_TL_SPI_EXTI_PIN;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(HCI_TL_SPI_EXTI_PORT, &GPIO_InitStruct);
-
-  /* Configure RESET Line */
-  GPIO_InitStruct.Pin =  HCI_TL_RST_PIN ;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(HCI_TL_RST_PORT, &GPIO_InitStruct);
-
-  /* Configure CS */
-  GPIO_InitStruct.Pin = HCI_TL_SPI_CS_PIN ;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(HCI_TL_SPI_CS_PORT, &GPIO_InitStruct);
-
-  return BSP_SPI2_Init();
-}
-
-/**
- * @brief  DeInitializes the peripherals communication with the BlueNRG
- *         Expansion Board (via SPI, I2C, USART, ...)
- *
- * @param  None
- * @retval int32_t 0
- */
-int32_t HCI_TL_SPI_DeInit(void)
-{
-  HAL_GPIO_DeInit(HCI_TL_SPI_EXTI_PORT, HCI_TL_SPI_EXTI_PIN);
-  HAL_GPIO_DeInit(HCI_TL_SPI_CS_PORT, HCI_TL_SPI_CS_PIN);
-  HAL_GPIO_DeInit(HCI_TL_RST_PORT, HCI_TL_RST_PIN);
-  return 0;
-}
-
-/**
- * @brief Reset BlueNRG module.
- *
- * @param  None
- * @retval int32_t 0
- */
-int32_t HCI_TL_SPI_Reset(void)
-{
-  // Deselect CS PIN for BlueNRG to avoid spurious commands
-  HAL_GPIO_WritePin(HCI_TL_SPI_CS_PORT, HCI_TL_SPI_CS_PIN, GPIO_PIN_SET);
-
-  HAL_GPIO_WritePin(HCI_TL_RST_PORT, HCI_TL_RST_PIN, GPIO_PIN_RESET);
-  HAL_Delay(5);
-  HAL_GPIO_WritePin(HCI_TL_RST_PORT, HCI_TL_RST_PIN, GPIO_PIN_SET);
-  HAL_Delay(5);
-  return 0;
-}
 
 /**
  * @brief  Reads from BlueNRG SPI buffer and store data into local buffer.
@@ -160,6 +96,18 @@ int32_t HCI_TL_SPI_Receive(uint8_t* buffer, uint16_t size)
   return len;
 }
 
+
+/**
+ * @brief  Reports if the BlueNRG has data for the host micro.
+ *
+ * @param  None
+ * @retval int32_t: 1 if data are present, 0 otherwise
+ */
+static int32_t IsDataAvailable(void)
+{
+  return (HAL_GPIO_ReadPin(HCI_TL_SPI_EXTI_PORT, HCI_TL_SPI_EXTI_PIN) == GPIO_PIN_SET);
+}
+
 /**
  * @brief  Writes data from local buffer to SPI.
  *
@@ -217,30 +165,34 @@ int32_t HCI_TL_SPI_Send(uint8_t* buffer, uint16_t size)
   return result;
 }
 
-/**
- * @brief  Reports if the BlueNRG has data for the host micro.
- *
- * @param  None
- * @retval int32_t: 1 if data are present, 0 otherwise
- */
-static int32_t IsDataAvailable(void)
+int32_t HCI_TL_SPI_Init()
 {
-  return (HAL_GPIO_ReadPin(HCI_TL_SPI_EXTI_PORT, HCI_TL_SPI_EXTI_PIN) == GPIO_PIN_SET);
+  return 0;
 }
 
-/***************************** hci_tl_interface main functions *****************************/
-/**
- * @brief  Register hci_tl_interface IO bus services
- *
- * @param  None
- * @retval None
- */
+int32_t  HCI_TL_SPI_DeInit()
+{
+  return 0;
+}
+
+int32_t  HCI_TL_SPI_Reset()
+{
+  // Deselect CS PIN for BlueNRG to avoid spurious commands
+  HAL_GPIO_WritePin(HCI_TL_SPI_CS_PORT, HCI_TL_SPI_CS_PIN, GPIO_PIN_SET);
+
+  HAL_GPIO_WritePin(HCI_TL_RST_PORT, HCI_TL_RST_PIN, GPIO_PIN_RESET);
+  HAL_Delay(5);
+  HAL_GPIO_WritePin(HCI_TL_RST_PORT, HCI_TL_RST_PIN, GPIO_PIN_SET);
+  HAL_Delay(5);
+  return 0;
+}
+
 void hci_tl_lowlevel_init(void)
 {
-  /* USER CODE BEGIN hci_tl_lowlevel_init 1 */
 
-  /* USER CODE END hci_tl_lowlevel_init 1 */
-  tHciIO fops;
+  /* USER CODE BEGIN hci_tl_lowlevel_init 1 */
+  /* Register IO bus services */
+    tHciIO fops;
 
   /* Register IO bus services */
   fops.Init    = HCI_TL_SPI_Init;
@@ -249,33 +201,30 @@ void hci_tl_lowlevel_init(void)
   fops.Receive = HCI_TL_SPI_Receive;
   fops.Reset   = HCI_TL_SPI_Reset;
   fops.GetTick = BSP_GetTick;
+  
+    hci_register_io_bus (&fops);
 
-  hci_register_io_bus (&fops);
+  /* USER CODE END hci_tl_lowlevel_init 1 */
 
   /* USER CODE BEGIN hci_tl_lowlevel_init 2 */
-
-  /* USER CODE END hci_tl_lowlevel_init 2 */
-
   /* Register event irq handler */
+  
   HAL_EXTI_GetHandle(&hexti0, EXTI_LINE_0);
   HAL_EXTI_RegisterCallback(&hexti0, HAL_EXTI_COMMON_CB_ID, hci_tl_lowlevel_isr);
   HAL_NVIC_SetPriority(EXTI0_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 
+
+  /* USER CODE END hci_tl_lowlevel_init 2 */
+
   /* USER CODE BEGIN hci_tl_lowlevel_init 3 */
 
   /* USER CODE END hci_tl_lowlevel_init 3 */
-
 }
 
-/**
-  * @brief HCI Transport Layer Low Level Interrupt Service Routine
-  *
-  * @param  None
-  * @retval None
-  */
 void hci_tl_lowlevel_isr(void)
 {
+  /* USER CODE BEGIN hci_tl_lowlevel_isr */
   /* Call hci_notify_asynch_evt() */
   while(IsDataAvailable())
   {
@@ -284,8 +233,6 @@ void hci_tl_lowlevel_isr(void)
       return;
     }
   }
-
-  /* USER CODE BEGIN hci_tl_lowlevel_isr */
 
   /* USER CODE END hci_tl_lowlevel_isr */
 }

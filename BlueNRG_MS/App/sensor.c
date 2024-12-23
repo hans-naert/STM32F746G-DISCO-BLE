@@ -159,20 +159,12 @@ void user_notify(void * pData)
           Read_Request_CB(pr->attr_handle);
         }
         break;
-				
-				
-			case EVT_BLUE_GATT_ATTRIBUTE_MODIFIED:
-        {
-          evt_gatt_attr_modified_IDB05A1 *evt = (evt_gatt_attr_modified_IDB05A1*)blue_evt->data;
-          Attribute_Modified_CB(evt->attr_handle, evt->data_length, evt->att_data);
-        }
-				break;
-			}
+      }
+
     }
     break;
   }
 }
-	
 
 /**
  * @brief  This function is called when the peer device gets disconnected.

@@ -57,7 +57,7 @@
 /* External variables --------------------------------------------------------*/
 
 /* USER CODE BEGIN EV */
-
+extern EXTI_HandleTypeDef hexti0;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -204,9 +204,9 @@ void SysTick_Handler(void)
 void EXTI0_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI0_IRQn 0 */
-
+	HAL_EXTI_IRQHandler(&hexti0);
   /* USER CODE END EXTI0_IRQn 0 */
-  HAL_EXTI_IRQHandler(&H_EXTI_0);
+  HAL_GPIO_EXTI_IRQHandler(IRQ_Pin);
   /* USER CODE BEGIN EXTI0_IRQn 1 */
 
   /* USER CODE END EXTI0_IRQn 1 */

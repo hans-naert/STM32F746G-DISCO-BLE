@@ -201,24 +201,6 @@ void MX_BlueNRG_MS_Init(void)
      PRINTF("Error while adding BlueMS HW service: 0x%02x\r\n", ret);
      while(1);
   }
-	
-	
-  ret = Add_Led_Service();
-  if(ret == BLE_STATUS_SUCCESS) {
-     PRINTF("Led service added successfully.\n");
-  } else {
-     PRINTF("Error while adding Led service: 0x%02x\r\n", ret);
-     while(1);
-  }
-
-   ret = Add_Button_Service();
-  if(ret == BLE_STATUS_SUCCESS) {
-     PRINTF("Button service added successfully.\n");
-  } else {
-     PRINTF("Error while adding Button service: 0x%02x\r\n", ret);
-     while(1);
-  }
-
 
   /* Set output power level */
   ret = aci_hal_set_tx_power_level(1,4);

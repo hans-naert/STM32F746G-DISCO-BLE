@@ -74,14 +74,10 @@ typedef union Char_UUID_t_s {
 
 tBleStatus Add_HWServW2ST_Service(void);
 tBleStatus Add_SWServW2ST_Service(void);
-tBleStatus Add_Led_Service(void);
-tBleStatus Add_Button_Service(void);
 void Read_Request_CB(uint16_t handle);
-void Attribute_Modified_CB(uint16_t handle, uint8_t data_length, uint8_t *att_data);
 tBleStatus BlueMS_Environmental_Update(int32_t press, int16_t temp);
 tBleStatus Acc_Update(AxesRaw_t *x_axes, AxesRaw_t *g_axes, AxesRaw_t *m_axes);
 tBleStatus Quat_Update(AxesRaw_t *q_axes);
-tBleStatus Button_Update(int8_t button);
 
 extern uint8_t Services_Max_Attribute_Records[];
 
