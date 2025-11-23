@@ -22,7 +22,7 @@
 #define  __RTE_COMPONENTS_H__
 
 /* Defines ------------------------------------------------------------------*/
-/* STMicroelectronics.X-CUBE-BLE1.7.0.0 */
+/* STMicroelectronics.X-CUBE-BLE1.7.1.0 */
 #define VIRTUAL_COM_PORT
 #define HCI_TL
 #define HCI_TL_INTERFACE
