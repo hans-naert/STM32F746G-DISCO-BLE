@@ -6,7 +6,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2024 STMicroelectronics.
+  * Copyright (c) 2025 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -30,7 +30,7 @@ extern "C" {
 #include <string.h>
 
 /*---------- Print messages from BLE1 files at user level -----------*/
-#define BLE1_DEBUG      1
+#define BLE1_DEBUG      0
 /*---------- Print the data travelling over the SPI in the .csv format compatible with the ST BlueNRG GUI -----------*/
 #define PRINT_CSV_FORMAT      0
 /*---------- Number of Bytes reserved for HCI Read Packet -----------*/

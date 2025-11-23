@@ -22,7 +22,7 @@
 #define  __RTE_COMPONENTS_H__
 
 /* Defines ------------------------------------------------------------------*/
-/* STMicroelectronics.X-CUBE-BLE1.7.0.0 */
+/* STMicroelectronics.X-CUBE-BLE1.7.1.0 */
 #define SAMPLE_APP
 #define HCI_TL
 #define HCI_TL_INTERFACE
